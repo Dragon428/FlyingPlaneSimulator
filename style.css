@@ -1,0 +1,867 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+/* ── Reset ──────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background: #000;
+}
+
+/* ── Canvas ─────────────────────────────────────────────────────────── */
+#app canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── HUD Container ──────────────────────────────────────────────────── */
+#hud-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  font-family: 'Inter', sans-serif;
+}
+
+#hud-container.hidden {
+  display: none;
+}
+
+/* ── Glassmorphism Panel Base ───────────────────────────────────────── */
+.hud-panel {
+  position: absolute;
+  background: rgba(10, 15, 30, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ── HUD Typography ─────────────────────────────────────────────────── */
+.hud-label {
+  color: #8a95a8;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.hud-value {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: #6b7a8d;
+  margin-left: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Value Colors ───────────────────────────────────────────────────── */
+.hud-value--speed {
+  color: #00ffaa;
+  text-shadow: 0 0 12px rgba(0, 255, 170, 0.3);
+}
+
+.hud-value--altitude {
+  color: #00ccff;
+  text-shadow: 0 0 12px rgba(0, 204, 255, 0.3);
+}
+
+.hud-value--heading {
+  color: #ffaa00;
+  text-shadow: 0 0 12px rgba(255, 170, 0, 0.3);
+}
+
+.hud-value--vs-positive {
+  color: #00ffaa;
+  text-shadow: 0 0 10px rgba(0, 255, 170, 0.25);
+}
+
+.hud-value--vs-negative {
+  color: #ff6655;
+  text-shadow: 0 0 10px rgba(255, 102, 85, 0.25);
+}
+
+.hud-value--vs-neutral {
+  color: #e0e8f0;
+}
+
+.hud-value--gforce {
+  color: #e0e8f0;
+  text-shadow: 0 0 8px rgba(224, 232, 240, 0.2);
+}
+
+.hud-value--gforce-high {
+  color: #ff4444;
+  text-shadow: 0 0 14px rgba(255, 68, 68, 0.5);
+}
+
+/* ── Speed Panel (top-left) ─────────────────────────────────────────── */
+.hud-speed {
+  top: 24px;
+  left: 24px;
+  min-width: 120px;
+}
+
+/* ── Altitude Panel (top-left, below speed) ─────────────────────────── */
+.hud-altitude {
+  top: 90px;
+  left: 24px;
+  min-width: 120px;
+}
+
+/* ── Heading / Compass Panel (top-center) ───────────────────────────── */
+.hud-heading {
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 100px;
+}
+
+.hud-compass-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.hud-compass-tick {
+  font-size: 10px;
+  color: #556677;
+  font-weight: 400;
+}
+
+.hud-compass-tick--active {
+  color: #ffaa00;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* ── Throttle Bar (left-center) ─────────────────────────────────────── */
+.hud-throttle {
+  top: 50%;
+  left: 24px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px;
+}
+
+.hud-throttle-track {
+  position: relative;
+  width: 8px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hud-throttle-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 4px;
+  background: linear-gradient(to top, #00cc66 0%, #aadd00 40%, #ffcc00 70%, #ff5533 100%);
+  transition: height 0.15s ease-out;
+  box-shadow: 0 0 8px rgba(0, 204, 102, 0.3);
+}
+
+.hud-throttle-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e0e8f0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Artificial Horizon (center) ────────────────────────────────────── */
+.hud-horizon {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: none;
+}
+
+.hud-horizon-ball {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.1s ease-out;
+}
+
+.hud-horizon-sky {
+  position: absolute;
+  top: -100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to bottom, #1a4a8a 0%, #3388cc 60%, #5599dd 100%);
+}
+
+.hud-horizon-ground {
+  position: absolute;
+  top: 100%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to bottom, #8b5e2f 0%, #6b4420 40%, #4a2f12 100%);
+}
+
+.hud-horizon-line {
+  position: absolute;
+  top: 50%;
+  left: -50%;
+  width: 200%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* pitch ladder marks */
+.hud-horizon-pitch-mark {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+  z-index: 1;
+}
+
+.hud-horizon-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.hud-horizon-crosshair::before,
+.hud-horizon-crosshair::after {
+  content: '';
+  position: absolute;
+  background: #ffcc00;
+  border-radius: 1px;
+}
+
+.hud-horizon-crosshair::before {
+  width: 28px;
+  height: 2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hud-horizon-crosshair::after {
+  width: 2px;
+  height: 28px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hud-horizon-crosshair-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffcc00;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(255, 204, 0, 0.6);
+}
+
+/* ── Vertical Speed (right-center) ──────────────────────────────────── */
+.hud-vspeed {
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  text-align: right;
+  min-width: 110px;
+}
+
+.hud-vspeed-bar {
+  margin-top: 6px;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hud-vspeed-indicator {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #00ffaa;
+  border-radius: 2px;
+  transition: width 0.2s ease, left 0.2s ease, background 0.2s ease;
+}
+
+/* ── Status Indicators (bottom-left) ────────────────────────────────── */
+.hud-status {
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hud-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3a3f4a;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+}
+
+.hud-status-dot--active {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6), 0 0 16px rgba(0, 255, 136, 0.25);
+}
+
+.hud-status-dot--warn {
+  background: #ff6644;
+  box-shadow: 0 0 8px rgba(255, 102, 68, 0.6), 0 0 16px rgba(255, 102, 68, 0.25);
+}
+
+.hud-status-name {
+  font-size: 11px;
+  color: #8a95a8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* ── G-Force (bottom-right) ─────────────────────────────────────────── */
+.hud-gforce {
+  bottom: 190px;
+  right: 24px;
+  text-align: right;
+  min-width: 80px;
+}
+
+/* ── Minimap (bottom-right corner) ──────────────────────────────────── */
+.hud-minimap {
+  bottom: 24px;
+  right: 24px;
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.hud-minimap canvas {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+/* ── Controls Help Panel (top-right) ────────────────────────────────── */
+.hud-controls {
+  top: 24px;
+  right: 24px;
+  max-width: 220px;
+  max-height: 300px;
+  overflow-y: auto;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hud-controls.hidden {
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+}
+
+.hud-controls-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e0e8f0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.hud-controls-key {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c0cad8;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Inter', monospace;
+  min-width: 22px;
+  text-align: center;
+}
+
+.hud-controls-desc {
+  font-size: 11px;
+  color: #7a8899;
+  font-weight: 400;
+  margin-left: 10px;
+  flex: 1;
+  text-align: right;
+}
+
+/* Custom scrollbar for controls panel */
+.hud-controls::-webkit-scrollbar {
+  width: 3px;
+}
+
+.hud-controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hud-controls::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ── Start Screen ──────────────────────────────────────────────────── */
+#start-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #0a0e1a 0%, #0d1525 30%, #111d33 60%, #0a1628 100%);
+  overflow: hidden;
+}
+
+.start-bg-particles {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.15) 50%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.1) 50%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.12) 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.08) 50%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.15) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 20% 85%, rgba(0,204,255,0.2) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 80% 15%, rgba(0,255,170,0.15) 50%, transparent 100%);
+  animation: particleDrift 20s linear infinite;
+}
+
+@keyframes particleDrift {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-15px) translateX(10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+.start-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: startFadeIn 1s ease;
+}
+
+@keyframes startFadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.start-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+  animation: startPlane 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(0, 204, 255, 0.4));
+}
+
+@keyframes startPlane {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-12px) rotate(5deg); }
+}
+
+.start-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: #e0e8f0;
+  letter-spacing: 2px;
+  text-align: center;
+  line-height: 1.1;
+  text-shadow: 0 0 30px rgba(0, 150, 255, 0.2);
+}
+
+.start-title-accent {
+  color: #00ccff;
+  text-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+}
+
+.start-version {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: #4a6080;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  margin-top: -2px;
+}
+
+.start-btn {
+  position: relative;
+  margin-top: 36px;
+  padding: 16px 64px;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #e0f0ff;
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.15) 0%, rgba(0, 204, 255, 0.08) 100%);
+  border: 1px solid rgba(0, 180, 255, 0.3);
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.start-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.3) 0%, rgba(0, 204, 255, 0.15) 100%);
+  border-color: rgba(0, 200, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 180, 255, 0.25), 0 0 60px rgba(0, 180, 255, 0.1);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 180, 255, 0.15);
+}
+
+.start-btn-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50px;
+  background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.15), transparent);
+  animation: btnGlow 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes btnGlow {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(100%); }
+}
+
+.start-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #3a4a5a;
+  letter-spacing: 1px;
+  margin-top: 16px;
+  animation: hintPulse 3s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* SEO description — visible to crawlers, hidden from users */
+.seo-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Pause Menu ────────────────────────────────────────────────────── */
+.pause-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.pause-menu.hidden {
+  display: none;
+}
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.pause-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 56px;
+  background: rgba(12, 18, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(0, 120, 255, 0.08);
+  animation: pauseIn 0.3s ease;
+}
+
+@keyframes pauseIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pause-icon {
+  font-size: 48px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.pause-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #e0e8f0;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.pause-btn {
+  width: 260px;
+  padding: 14px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+  border: 1px solid transparent;
+}
+
+.pause-btn--resume {
+  color: #e0f0ff;
+  background: linear-gradient(135deg, rgba(0, 180, 255, 0.25) 0%, rgba(0, 130, 255, 0.12) 100%);
+  border-color: rgba(0, 180, 255, 0.35);
+}
+
+.pause-btn--resume:hover {
+  background: linear-gradient(135deg, rgba(0, 180, 255, 0.4) 0%, rgba(0, 130, 255, 0.2) 100%);
+  border-color: rgba(0, 200, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 180, 255, 0.2);
+}
+
+.pause-btn--home {
+  color: #c0c8d4;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pause-btn--home:hover {
+  background: rgba(255, 80, 80, 0.12);
+  border-color: rgba(255, 100, 100, 0.35);
+  color: #ff8888;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 80, 80, 0.12);
+}
+
+.pause-btn:active {
+  transform: translateY(0);
+}
+
+.pause-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #3a4a5a;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+/* ── Loading Screen ─────────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s ease;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a6a7a;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 32px;
+  animation: loadingPulse 2s ease-in-out infinite;
+}
+
+.loading-bar-track {
+  width: 260px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.loading-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #00ffaa, #00ccff);
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.4);
+  transition: width 0.4s ease;
+}
+
+.loading-bar-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.loading-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #3a4550;
+  margin-top: 16px;
+  letter-spacing: 1px;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* ── Subtle Animations ──────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hud-panel {
+  animation: fadeIn 0.5s ease backwards;
+}
+
+.hud-speed      { animation-delay: 0.05s; }
+.hud-altitude   { animation-delay: 0.10s; }
+.hud-heading    { animation-delay: 0.15s; }
+.hud-throttle   { animation-delay: 0.08s; }
+.hud-horizon    { animation-delay: 0.12s; }
+.hud-vspeed     { animation-delay: 0.18s; }
+.hud-status     { animation-delay: 0.20s; }
+.hud-gforce     { animation-delay: 0.22s; }
+.hud-minimap    { animation-delay: 0.25s; }
+.hud-controls   { animation-delay: 0.30s; }
+
+/* ── Responsive Glow Accents ────────────────────────────────────────── */
+.hud-speed::before,
+.hud-altitude::before,
+.hud-heading::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  border-radius: 1px;
+}
+
+.hud-speed::before {
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 170, 0.3), transparent);
+}
+
+.hud-altitude::before {
+  background: linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.3), transparent);
+}
+
+.hud-heading::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 170, 0, 0.3), transparent);
+}
