@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO: Primary Meta Tags -->
+  <title>FlyingPlaneSimulator V1</title>
+  <meta name="description" content="FlyingPlaneSimulator V1 is a free online 3D flight simulator. Fly realistic airplanes, take off and land at airports, explore an open world with AI traffic, and experience arcade-style flight physics in your browser." />
+  <meta name="keywords" content="flight simulator, airplane game, 3D flight simulator, online flying game, free flight sim, airplane simulator, fly planes, browser game, aviation game, FlyingPlaneSimulator" />
+  <meta name="author" content="FlyingPlaneSimulator" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <link rel="canonical" href="https://flyingplanesimulator.com/" />
+
+  <!-- SEO: Open Graph (Facebook, Discord, etc.) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FlyingPlaneSimulator V1 — Free 3D Flight Simulator" />
+  <meta property="og:description" content="Fly realistic airplanes in this free 3D browser flight simulator. Take off, land, and explore a vast open world with airports and AI air traffic." />
+  <meta property="og:image" content="/FlyingPlaneSimulator/favicon.png" />
+  <meta property="og:url" content="https://flyingplanesimulator.com/" />
+  <meta property="og:site_name" content="FlyingPlaneSimulator" />
+
+  <!-- SEO: Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="FlyingPlaneSimulator V1 — Free 3D Flight Simulator" />
+  <meta name="twitter:description" content="Free online 3D flight simulator. Fly planes, land at airports, and explore an open world — all in your browser." />
+  <meta name="twitter:image" content="/FlyingPlaneSimulator/favicon.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/FlyingPlaneSimulator/favicon.png" />
+  <link rel="apple-touch-icon" href="/FlyingPlaneSimulator/favicon.png" />
+
+  <!-- Stylesheet -->
+
+  <!-- SEO: Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "FlyingPlaneSimulator V1",
+    "description": "A free online 3D flight simulator game. Fly airplanes, take off and land at airports, and explore a vast open world with AI air traffic.",
+    "url": "https://flyingplanesimulator.com/",
+    "applicationCategory": "GameApplication",
+    "genre": "Flight Simulator",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "screenshot": "/favicon.png",
+    "softwareVersion": "1.0",
+    "browserRequirements": "Requires a modern browser with WebGL support"
+  }
+  </script>
+  <script type="module" crossorigin src="/FlyingPlaneSimulator/assets/index-CSTlcsaT.js"></script>
+  <link rel="stylesheet" crossorigin href="/FlyingPlaneSimulator/assets/index-CdNTqCUi.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       START SCREEN (Landing Page — visible to crawlers)
+       ============================================================ -->
+  <header id="start-screen" role="banner">
+    <div class="start-bg-particles" aria-hidden="true"></div>
+    <main class="start-content">
+      <div class="start-icon" aria-hidden="true">✈</div>
+      <h1 class="start-title">FlyingPlane<span class="start-title-accent">Simulator</span></h1>
+      <p class="start-version">V1</p>
+
+      <article class="seo-description">
+        <h2 class="seo-heading">Free 3D Flight Simulator — Play Online</h2>
+        <p>Experience the thrill of flying with FlyingPlaneSimulator. Take off from realistic airports, navigate through open skies, land at multiple airfields, and share the sky with 40 AI-controlled aircraft. All in your browser — no download required.</p>
+      </article>
+
+      <nav aria-label="Game controls">
+        <button id="start-btn" class="start-btn" aria-label="Start the flight simulator">
+          <span class="start-btn-text">Start</span>
+          <span class="start-btn-glow" aria-hidden="true"></span>
+        </button>
+      </nav>
+      <p class="start-hint">Press Start to begin your flight</p>
+    </main>
+  </header>
+
+  <!-- ============================================================
+       LOADING SCREEN
+       ============================================================ -->
+  <section id="loading-screen" style="display:none;" aria-label="Loading">
+    <div class="loading-content">
+      <div class="loading-icon" aria-hidden="true">✈</div>
+      <h2>Loading Flight Simulator</h2>
+      <p class="loading-subtitle">Preparing your aircraft...</p>
+      <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <p class="loading-hint">W/S: Climb/Descend &nbsp;|&nbsp; A/D: Turn &nbsp;|&nbsp; E/Q: Speed</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAUSE MENU
+       ============================================================ -->
+  <aside id="pause-menu" class="pause-menu hidden" role="dialog" aria-label="Pause menu" aria-modal="true">
+    <div class="pause-overlay" aria-hidden="true"></div>
+    <div class="pause-content">
+      <div class="pause-icon" aria-hidden="true">⏸</div>
+      <h2 class="pause-title">Game Paused</h2>
+      <button id="pause-resume-btn" class="pause-btn pause-btn--resume" aria-label="Resume game">
+        <span>Resume</span>
+      </button>
+      <button id="pause-home-btn" class="pause-btn pause-btn--home" aria-label="Go to main page">
+        <span>Go to main page</span>
+      </button>
+      <p class="pause-hint">Press 3 to resume</p>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       GAME CANVAS
+       ============================================================ -->
+  <div id="app" role="application" aria-label="3D Flight Simulator"></div>
+
+  <!-- No-JavaScript Fallback -->
+  <noscript>
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0e1a;color:#e0e8f0;font-family:sans-serif;text-align:center;padding:2rem;">
+      <div>
+        <h1>FlyingPlaneSimulator V1</h1>
+        <p>This 3D flight simulator requires JavaScript and a WebGL-capable browser to run.</p>
+        <p>Please enable JavaScript and reload the page.</p>
+      </div>
+    </div>
+  </noscript>
+
+</body>
+</html>
